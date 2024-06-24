@@ -5,23 +5,23 @@ from PIL import Image
 from skimage import color
 from skimage.color import rgb2gray
 from skimage import io, img_as_ubyte
-from skimage.util import random_noise
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Function to generate a mask with random noise
-def generate_mask(image, noise_amount=0.2):
-    noisy_image = random_noise(image, mode='s&p', amount=noise_amount)
-    mask = noisy_image != image
+# Function to generate a mask with a small square in the middle
+def generate_square_mask(image, square_size=50):
+    mask = np.zeros(image.shape, dtype=bool)
+    center_x, center_y = image.shape[1] // 2, image.shape[0] // 2
+    half_size = square_size // 2
+    mask[center_y - half_size:center_y + half_size, center_x - half_size:center_x + half_size] = True
     return mask
 
 # Load the images
 original = io.imread(r"C:\Users\kizer\Master_code\input_0_zoom.png")
-tv_restored = io.imread(r"C:\Users\kizer\Master_code\inpainted_zoom.png")
 gray_image = color.rgb2gray(original)
 
-# Generate a mask
-mask = generate_mask(gray_image)
+# Generate a mask with a small square in the middle
+mask = generate_square_mask(gray_image, square_size=50)
 
 # Apply the mask (highlight masked areas in red for visibility)
 gray_image_rgb = np.stack([gray_image]*3, axis=-1)
@@ -30,6 +30,7 @@ gray_image_rgb[mask] = [1, 0, 0]  # Red color for masked areas
 # Example CDD:
 # Define the g function based on curvature (e.g., g(s) = 1 / (1 + s) for s > 0)
 g = lambda s: 1 / (1 + s)
+
 # Inpaint the image (assuming `image` and `mask` are defined)
 inpainted_image = cdd_inpainting(gray_image, mask, g, iterations=1000, tau=0.01)
 
