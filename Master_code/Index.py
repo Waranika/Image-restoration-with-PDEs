@@ -32,7 +32,8 @@ gray_image_rgb[mask] = [1, 0, 0]  # Red color for masked areas
 g = lambda s: 1 / (1 + s)
 
 # Inpaint the image (assuming `image` and `mask` are defined)
-inpainted_image = cdd_inpainting(gray_image, mask, g, iterations=1000, tau=0.01)
+#ADD MASK TO IMAGE
+inpainted_image = cdd_inpainting(gray_image, mask, g, iterations=5000, tau=0.01)
 
 # Normalize the inpainted image to the range [0, 1]
 inpainted_image_normalized = (inpainted_image - np.min(inpainted_image)) / (np.max(inpainted_image) - np.min(inpainted_image))

@@ -11,7 +11,7 @@ def compute_curvature(u):
     u_y = np.gradient(u, axis=0)
 
     # Compute gradient magnitude 
-    magnitude = np.sqrt(u_x**2 + u_y**2)
+    magnitude = np.sqrt(u_x**2 + u_y**2) + 1e-8  # Added small constant to avoid division by zero
 
     # Compute curvature
     curvature = np.gradient(u_x/magnitude, axis=1) + np.gradient(u_y/magnitude, axis=0) 
@@ -47,10 +47,10 @@ def cdd_inpainting(image, mask, g, iterations=100, tau=0.1):
         divergence = np.gradient(j_x, axis=1) + np.gradient(j_y, axis=0)
         
         # Update only the inpainting domain
-        u[mask] += tau * divergence[mask]
+        u = u -  tau * divergence
         
         # Debugging: print the iteration number and max divergence
-        #print(f"Iteration {iter_num + 1}/{iterations}, max divergence: {np.max(divergence)}")
+        print(f"Iteration {iter_num + 1}/{iterations}, max divergence: {np.max(divergence)}")
     
     # Convert the processed image back to the original type
     u = np.clip(u, 0, 255)  # Clip values to be in the valid range
