@@ -23,17 +23,22 @@ gray_image = color.rgb2gray(original)
 # Generate a mask with a small square in the middle
 mask = generate_square_mask(gray_image, square_size=50)
 
+# Apply the mask to the grayscale image (set masked areas to 0 for inpainting)
+masked_image = np.copy(gray_image)
+masked_image[mask] = 0
+
 # Apply the mask (highlight masked areas in red for visibility)
 gray_image_rgb = np.stack([gray_image]*3, axis=-1)
 gray_image_rgb[mask] = [1, 0, 0]  # Red color for masked areas
 
 # Example CDD:
+p = 4
 # Define the g function based on curvature (e.g., g(s) = 1 / (1 + s) for s > 0)
-g = lambda s: 1 / (1 + s)
-
+g = lambda s: s**p
+#g = lambda s: 1 / (1 + s)
 # Inpaint the image (assuming `image` and `mask` are defined)
 #ADD MASK TO IMAGE
-inpainted_image = cdd_inpainting(gray_image, mask, g, iterations=5000, tau=0.01)
+inpainted_image = cdd_inpainting(masked_image, g, iterations=10000, tau=0.1)
 
 # Normalize the inpainted image to the range [0, 1]
 inpainted_image_normalized = (inpainted_image - np.min(inpainted_image)) / (np.max(inpainted_image) - np.min(inpainted_image))
@@ -54,7 +59,7 @@ else:
 
 # Display the images using matplotlib
 fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-axes[0].imshow(gray_image, cmap='gray')
+axes[0].imshow(masked_image, cmap='gray')
 axes[0].set_title('Original Grayscale Image')
 axes[0].axis('off')
 

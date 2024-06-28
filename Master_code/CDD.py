@@ -17,7 +17,7 @@ def compute_curvature(u):
     curvature = np.gradient(u_x/magnitude, axis=1) + np.gradient(u_y/magnitude, axis=0) 
     return curvature
 
-def cdd_inpainting(image, mask, g, iterations=100, tau=0.1):
+def cdd_inpainting(image, g, iterations=100, tau=0.1):
     """
     Performs Curvature-Driven Diffusions (CDD) inpainting on a given image.
     
@@ -36,7 +36,7 @@ def cdd_inpainting(image, mask, g, iterations=100, tau=0.1):
     for iter_num in range(iterations):
         curvature = compute_curvature(u)
         # Compute gradient magnitude 
-        magnitude = np.sqrt(np.gradient(u, axis=1)**2 + np.gradient(u, axis=0)**2)
+        magnitude = np.sqrt(np.gradient(u, axis=1)**2 + np.gradient(u, axis=0)**2) +1e-8
         D = g(np.abs(curvature))/magnitude
 
         # Compute j , the flux field
@@ -46,11 +46,12 @@ def cdd_inpainting(image, mask, g, iterations=100, tau=0.1):
         # Compute the divergence
         divergence = np.gradient(j_x, axis=1) + np.gradient(j_y, axis=0)
         
-        # Update only the inpainting domain
-        u = u -  tau * divergence
+        # Update only the inpainting domain (where u is zero)
+        u[u == 0] += tau * divergence[u == 0]
         
         # Debugging: print the iteration number and max divergence
-        print(f"Iteration {iter_num + 1}/{iterations}, max divergence: {np.max(divergence)}")
+        if iter_num % 100 == 0 or iter_num == iterations - 1:
+            print(f"Iteration {iter_num + 1}/{iterations}, max divergence: {np.max(divergence)}")
     
     # Convert the processed image back to the original type
     u = np.clip(u, 0, 255)  # Clip values to be in the valid range
