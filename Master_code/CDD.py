@@ -47,7 +47,7 @@ def cdd_inpainting(image, g, iterations=100, tau=0.1):
         divergence = np.gradient(j_x, axis=1) + np.gradient(j_y, axis=0)
         
         # Update only the inpainting domain (where u is zero)
-        u[u == 0] += tau * divergence[u == 0]
+        u[u == 0] -= tau * divergence[u == 0]
         
         # Debugging: print the iteration number and max divergence
         if iter_num % 100 == 0 or iter_num == iterations - 1:

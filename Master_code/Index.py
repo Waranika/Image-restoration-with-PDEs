@@ -38,7 +38,7 @@ g = lambda s: s**p
 #g = lambda s: 1 / (1 + s)
 # Inpaint the image (assuming `image` and `mask` are defined)
 #ADD MASK TO IMAGE
-inpainted_image = cdd_inpainting(masked_image, g, iterations=10000, tau=0.1)
+inpainted_image = cdd_inpainting(masked_image, g, iterations=5000, tau=1)
 
 # Normalize the inpainted image to the range [0, 1]
 inpainted_image_normalized = (inpainted_image - np.min(inpainted_image)) / (np.max(inpainted_image) - np.min(inpainted_image))

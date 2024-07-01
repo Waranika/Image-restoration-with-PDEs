@@ -1,4 +1,5 @@
 import math
+import skimage
 import numpy as np
 import scipy.signal
 from skimage.util import random_noise
@@ -10,7 +11,7 @@ def generate_mask(image, noise_amount=0.2):
     return mask
 
 
-def nonlinearDiffusionFilter(image: np.ndarray, iterations=10, lamb=1.0, tau=0.125, image_seq=None):
+def nonlinearDiffusionFilter(image: np.ndarray, iterations=5, lamb=1.0, tau=0.125, image_seq=None):
     """
     Execute nonlinear isotropic smoothing filter on an image.
     The method is based on the 1990 paper by Perona and Malik.
@@ -45,19 +46,34 @@ def nonlinearDiffusionFilter(image: np.ndarray, iterations=10, lamb=1.0, tau=0.1
         """
         Compute the nonlinear gradient-derived diffusivity.
         """
-        gradkernelx = 0.5 * np.array([[0.0, 0.0, 0.0], [-1.0, 0.0, 1.0], [0.0, 0.0, 0.0]])
-        gradkernely = 0.5 * np.array([[0.0, -1.0, 0.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
-        gradx = scipy.signal.convolve2d(u, gradkernelx, boundary='symm', mode='same')
-        grady = scipy.signal.convolve2d(u, gradkernely, boundary='symm', mode='same')
+        shape = u.shape
+        if len(shape) > 2 and shape[2] > 1:
+            print("RGB to gray")
+            u = skimage.color.rgb2gray(u)
+    
+        gradkernelx = 0.5 * np.array([[0.0, 0.0, 0.0], 
+                                      [-1.0, 0.0, 1.0], 
+                                      [0.0, 0.0, 0.0]])
+        gradkernely = 0.5 * np.array([[0.0, -1.0, 0.0], 
+                                      [0.0, 0.0, 0.0], 
+                                      [0.0, 1.0, 0.0]])
+        gradx = scipy.signal.convolve2d(u, gradkernelx, boundary='symm')
+        grady = scipy.signal.convolve2d(u, gradkernely, boundary='symm')
         gradm2 = np.square(gradx) + np.square(grady)
-        g = 1.0 / np.sqrt(1.0 + gradm2 / np.square(lamb))
+        g = 1.0 / np.sqrt(1.0 + gradm2 / lamb*lamb)
         return g
 
     u = np.copy(image)
+    if len(u.shape) > 2 and u.shape[2] == 1:
+        u = np.reshape (u, u.shape[0], u.shape[1])
+    if image_seq != None:
+        image_seq.append(np.copy(u))
+
     for i in range(iterations):
+        print(f"Iterations: {i+1}/{iterations}")
         g = computeDiffusivity(u, lamb)
         update = computeUpdate(u, g)
         u += tau * update
-        if image_seq is not None:
+        if image_seq != None:
             image_seq.append(np.copy(u))
     return u
