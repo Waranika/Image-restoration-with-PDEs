@@ -9,13 +9,12 @@ def TV(input_image, lambda_param, mask, T, dt):
     iterations = 0
 
     for t in np.arange(0, T, dt):
-        u_x = u[:, [1] + list(range(1, j))] - u
-        u_y = u[[1] + list(range(1, i)), :] - u
+        u_x, u_y = np.gradient(u)
         N = np.sum(np.sqrt(u_x**2 + u_y**2))
-        u_xx = u[:, [1] + list(range(1, j))] - 2 * u + u[:, [0] + list(range(j-1))]
-        u_yy = u[[1] + list(range(1, i)), :] - 2 * u + u[[0] + list(range(i-1)), :]
-        u_xy = (u[[1] + list(range(1, i)), [1] + list(range(1, j))] + u[[0] + list(range(i-1)), [0] + list(range(j-1))]
-                - u[[0] + list(range(i-1)), [1] + list(range(1, j))] - u[[1] + list(range(1, i)), [0] + list(range(j-1))]) / 4
+        u_xx, _ = np.gradient(u_x)
+        _, u_yy = np.gradient(u_y)
+        u_xy = (np.gradient(u_x, axis=0) + np.gradient(u_y, axis=1)) / 2
+
         deltaE = -(u_xx * u_y**2 - 2 * u_x * u_y * u_xy + u_yy * u_x**2) / (0.1 + (u_x**2 + u_y**2)**(3/2)) + 2 * mask * (lambda_param * (u - input_image))
         u += dt * (-deltaE * N / (np.sqrt(np.sum(N**2))))
 
