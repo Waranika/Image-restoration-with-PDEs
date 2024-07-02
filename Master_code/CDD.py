@@ -17,7 +17,7 @@ def compute_curvature(u):
     curvature = np.gradient(u_x/magnitude, axis=1) + np.gradient(u_y/magnitude, axis=0) 
     return curvature
 
-def cdd_inpainting(image, g, iterations=100, tau=0.1):
+def cdd_inpainting(image, mask, g, iterations=100, tau=0.1):
     """
     Performs Curvature-Driven Diffusions (CDD) inpainting on a given image.
     
@@ -46,8 +46,8 @@ def cdd_inpainting(image, g, iterations=100, tau=0.1):
         # Compute the divergence
         divergence = np.gradient(j_x, axis=1) + np.gradient(j_y, axis=0)
         
-        # Update only the inpainting domain (where u is zero)
-        u[u == 0] -= tau * divergence[u == 0]
+        # Update only the inpainting domain
+        u[mask] -= tau * divergence[mask]
         
         # Debugging: print the iteration number and max divergence
         if iter_num % 100 == 0 or iter_num == iterations - 1:
