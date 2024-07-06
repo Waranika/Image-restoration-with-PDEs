@@ -23,7 +23,7 @@ gray_image = color.rgb2gray(original)
 
 
 # Generate a mask with a small square in the middle
-mask = generate_square_mask(gray_image, square_size=50)
+mask = generate_square_mask(gray_image, square_size=20)
 
 # Apply the mask to the grayscale image (set masked areas to 0 for inpainting)
 masked_image = np.copy(gray_image)
@@ -33,13 +33,8 @@ masked_image[mask] = 0
 gray_image_rgb = np.stack([gray_image]*3, axis=-1)
 gray_image_rgb[mask] = [1, 0, 0]  # Red color for masked areas
 
-# Parameters
-lamda, gama = 0.1, 0.1
-iter = 1000
-
 # Run inpainting
-uk, rmse, num_iterations = tv1inpaint(masked_image, lamda, gama, iter, 214, 320)
-print(f'RMSE: {rmse[-1]}, Iterations: {num_iterations}')
+uk, N= TV(gray_image, 0.2, mask, 4000, 0.5)
 
 # Display the images using matplotlib
 
