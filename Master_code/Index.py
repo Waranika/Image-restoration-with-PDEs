@@ -34,7 +34,7 @@ gray_image_rgb = np.stack([gray_image]*3, axis=-1)
 gray_image_rgb[mask] = [1, 0, 0]  # Red color for masked areas
 
 # Run inpainting
-uk, N= TV(gray_image, 0.2, mask, 4000, 0.5)
+uk, N= TV(gray_image, 0.5, mask, 250, 0.1)
 
 # Display the images using matplotlib
 

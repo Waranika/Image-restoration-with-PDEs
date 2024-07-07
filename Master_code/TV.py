@@ -17,8 +17,8 @@ def TV(input_img, lambda_val, mask, T, dt):
     plt.show(block=False)
 
     for t in tqdm(np.arange(0, T + dt, dt)):
-        u_x = np.roll(u, -1, axis=1) - u
-        u_y = np.roll(u, -1, axis=0) - u
+        u_x = np.gradient(u, axis=1)
+        u_y = np.gradient(u, axis=0)
         N = np.sum(np.sqrt(u_x**2 + u_y**2))
 
         u_xx = np.roll(u, -1, axis=1) - 2*u + np.roll(u, 1, axis=1)
