@@ -16,22 +16,20 @@ def TV(input_img, lambda_val, mask, T, dt):
     plt.imshow(u, cmap='gray')
     plt.show(block=False)
 
-    for t in tqdm(np.arange(0, T + dt, dt)):
+    #issue is in math
+    for t in np.arange(0, T, dt):
         u_x = np.gradient(u, axis=1)
         u_y = np.gradient(u, axis=0)
         N = np.sum(np.sqrt(u_x**2 + u_y**2))
 
-        u_xx = np.roll(u, -1, axis=1) - 2*u + np.roll(u, 1, axis=1)
-        u_yy = np.roll(u, -1, axis=0) - 2*u + np.roll(u, 1, axis=0)
-        u_xy = (np.roll(np.roll(u, -1, axis=0), -1, axis=1) + 
-                np.roll(np.roll(u, 1, axis=0), 1, axis=1) - 
-                np.roll(np.roll(u, 1, axis=0), -1, axis=1) - 
-                np.roll(np.roll(u, -1, axis=0), 1, axis=1)) / 4
+        u_xx = np.gradient(u_x, axis=1)
+        u_yy = np.gradient(u_y, axis=0)
+        u_xy = np.gradient(u_x, axis=0)
 
-        deltaE = -(u_xx * u_y**2 - 2*u_x * u_y * u_xy + u_yy * u_x**2) / (0.1 + (u_x**2 + u_y**2)**(3/2)) + \
-                 2 * mask * (lambda_val * (u - input_img))
+        deltaE = -(u_xx * u_y**2 - 2*u_x * u_y * u_xy + u_yy * u_x**2) / (1e-5  + 0.1 + (u_x**2 + u_y**2)**(3/2)) + 2 * mask * (lambda_val * (u - input_img))
 
-        u = dt * (-deltaE * N / (np.sqrt(np.sum(N**2)))) + u
+        u = dt * (-deltaE ) + u 
+        #print(N)
         iterations += 1
 
         if iterations % 100 == 0:
@@ -41,9 +39,6 @@ def TV(input_img, lambda_val, mask, T, dt):
             plt.draw()
             plt.pause(0.001)
 
-    plt.clf()
-    plt.imshow(u.astype(np.uint8), cmap='gray')
-    plt.title(f'Done after {iterations} iterations!')
-    plt.show()
+    
 
-    return u.astype(np.uint8), N
+    return u, N

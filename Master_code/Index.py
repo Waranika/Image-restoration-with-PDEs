@@ -25,7 +25,7 @@ gray_image = color.rgb2gray(original)
 # Generate a mask with a small square in the middle
 mask = generate_square_mask(gray_image, square_size=20)
 
-# Apply the mask to the grayscale image (set masked areas to 0 for inpainting)
+# Apply the mask to the grayscale image (set masked areas to 0)
 masked_image = np.copy(gray_image)
 masked_image[mask] = 0
 
@@ -34,7 +34,7 @@ gray_image_rgb = np.stack([gray_image]*3, axis=-1)
 gray_image_rgb[mask] = [1, 0, 0]  # Red color for masked areas
 
 # Run inpainting
-uk, N= TV(gray_image, 0.5, mask, 250, 0.1)
+uk, N= TV(gray_image, 0.01, mask, 2500, 0.5)
 
 # Display the images using matplotlib
 
