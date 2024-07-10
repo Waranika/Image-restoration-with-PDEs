@@ -8,6 +8,7 @@ from skimage import io, img_as_ubyte
 import matplotlib.pyplot as plt
 import numpy as np
 from TV import *
+from skimage.filters import gaussian
 
 # Function to generate a mask with a small square in the middle
 def generate_square_mask(image, square_size=50):
@@ -33,6 +34,47 @@ masked_image[mask] = 0
 gray_image_rgb = np.stack([gray_image]*3, axis=-1)
 gray_image_rgb[mask] = [1, 0, 0]  # Red color for masked areas
 
+
+NDF = nonlinearDiffusionFilter(masked_image)
+
+# Display the images using matplotlib
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+axes[0].imshow(masked_image, cmap='gray')
+axes[0].set_title('Original Grayscale Image')
+axes[0].axis('off')
+
+axes[1].imshow(gray_image_rgb)
+axes[1].set_title('Masked Image')
+axes[1].axis('off')
+
+axes[2].imshow(NDF, cmap='gray')
+axes[2].set_title('Inpainted Image')
+axes[2].axis('off')
+
+plt.show()
+
+'''
+# Gaussian filter
+gauss_img = gaussian(masked_image, sigma=1)
+
+# Display the images using matplotlib
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+axes[0].imshow(masked_image, cmap='gray')
+axes[0].set_title('Original Grayscale Image')
+axes[0].axis('off')
+
+axes[1].imshow(gray_image_rgb)
+axes[1].set_title('Masked Image')
+axes[1].axis('off')
+
+axes[2].imshow(gauss_img, cmap='gray')
+axes[2].set_title('Inpainted Image')
+axes[2].axis('off')
+
+plt.show()
+'''
+
+'''
 # Run inpainting
 uk, N= TV(gray_image, 0.01, mask, 2500, 0.5)
 
@@ -53,13 +95,15 @@ axes[2].axis('off')
 
 plt.show()
 '''
+
+'''
 # Example CDD:
 p = 5
 # Define the g function based on curvature 
 g = lambda s: s**p
 #g = lambda s: 1 / (1 + s)
 # Inpaint the image 
-inpainted_image = cdd_inpainting(masked_image, mask, g, iterations=50000, tau=0.001)
+inpainted_image = cdd_inpainting(masked_image, mask, g, iterations=5000, tau=0.001)
 
 # Normalize the inpainted image to the range [0, 1]
 inpainted_image_normalized = (inpainted_image - np.min(inpainted_image)) / (np.max(inpainted_image) - np.min(inpainted_image))
