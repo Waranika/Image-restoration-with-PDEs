@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from TV import *
 from skimage.filters import gaussian
+import cv2
 
 # Function to generate a mask with a small square in the middle
 def generate_square_mask(image, square_size=50):
@@ -34,9 +35,9 @@ masked_image[mask] = 0
 gray_image_rgb = np.stack([gray_image]*3, axis=-1)
 gray_image_rgb[mask] = [1, 0, 0]  # Red color for masked areas
 
-
-NDF = nonlinearDiffusionFilter(masked_image)
-
+'''
+NDF = nonlinearDiffusionFilter(masked_image, iterations=10, lamb=1.0, tau=0.125)
+print("mse = ", mse(gray_image, NDF))
 # Display the images using matplotlib
 fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 axes[0].imshow(masked_image, cmap='gray')
@@ -52,7 +53,7 @@ axes[2].set_title('Inpainted Image')
 axes[2].axis('off')
 
 plt.show()
-
+'''
 '''
 # Gaussian filter
 gauss_img = gaussian(masked_image, sigma=1)
@@ -76,7 +77,8 @@ plt.show()
 
 '''
 # Run inpainting
-uk, N= TV(gray_image, 0.01, mask, 2500, 0.5)
+uk, N= TV(gray_image, 0.8, mask, 500, 0.5)
+print("mse = ", mse(gray_image, uk))
 
 # Display the images using matplotlib
 
@@ -96,7 +98,7 @@ axes[2].axis('off')
 plt.show()
 '''
 
-'''
+
 # Example CDD:
 p = 5
 # Define the g function based on curvature 
@@ -112,8 +114,11 @@ inpainted_image_normalized = (inpainted_image - np.min(inpainted_image)) / (np.m
 inpainted_image_uint8 = img_as_ubyte(inpainted_image_normalized)
 
 # Calculate PSNR
-psnr_value = psnr(gray_image, inpainted_image_uint8)
+#psnr_value = psnr(gray_image, inpainted_image_uint8)
+psnr_value = cv2.PSNR(gray_image, inpainted_image)
 print(f"PSNR: {psnr_value} dB")
+
+print("mse = ", mse(gray_image, inpainted_image))
 
 if psnr_value < 20:
     print("The image has poorly been conserved")
@@ -139,4 +144,3 @@ axes[2].axis('off')
 
 plt.show()
 
-'''

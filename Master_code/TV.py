@@ -16,7 +16,7 @@ def TV(input_img, lambda_val, mask, T, dt):
     plt.imshow(u, cmap='gray')
     plt.show(block=False)
 
-    #issue is in math
+    
     for t in np.arange(0, T, dt):
         u_x = np.gradient(u, axis=1)
         u_y = np.gradient(u, axis=0)

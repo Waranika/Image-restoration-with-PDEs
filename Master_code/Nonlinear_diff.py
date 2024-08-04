@@ -32,6 +32,15 @@ def nonlinearDiffusionFilter(image: np.ndarray, iterations=5, lamb=1.0, tau=0.12
                 g_ip = math.sqrt(g_padded[j+1, i] * g_padded[j, i])
                 g_in = math.sqrt(g_padded[j-1, i] * g_padded[j, i])
 
+                if i==u.shape[1]-2:
+                    g_pj = 0
+                if i==1:
+                    g_nj = 0
+                if j==u.shape[0]-2:
+                    g_ip = 0
+                if j==1:
+                    g_in = 0
+
                 ux0 =  g_pj * (u_padded[j, i+1] - u_padded[j, i])
                 ux1 = -g_nj * (u_padded[j, i] - u_padded[j, i-1])
                 uy0 =  g_ip * (u_padded[j+1, i] - u_padded[j, i])
@@ -60,7 +69,7 @@ def nonlinearDiffusionFilter(image: np.ndarray, iterations=5, lamb=1.0, tau=0.12
         gradx = scipy.signal.convolve2d(u, gradkernelx, boundary='symm')
         grady = scipy.signal.convolve2d(u, gradkernely, boundary='symm')
         gradm2 = np.square(gradx) + np.square(grady)
-        g = 1.0 / np.sqrt(1.0 + gradm2 / lamb*lamb)
+        g = 1.0 / (np.sqrt((1.0 + gradm2) / (lamb*lamb)))
         return g
 
     u = np.copy(image)
