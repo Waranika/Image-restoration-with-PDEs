@@ -1,14 +1,15 @@
 import numpy as np
 
 def mse(imageA, imageB):
-    # the 'Mean Squared Error' between the two images is the
     # sum of the squared difference between the two images;
-    # NOTE: the two images must have the same dimension
+    # the two images must have the same dimension
     err = np.sum((imageA.astype("float") - imageB.astype("float")) ** 2)
     err /= float(imageA.shape[0] * imageA.shape[1])
     
     return err
 
+
+#CHANGE TO JUST THE MASK 
 def psnr(original, restored):
     mse_value = mse(original, restored)
     if mse_value == 0:

@@ -10,12 +10,12 @@ def TV(input_img, lambda_val, mask, T, dt):
     input_img = mask * input_img 
     u = input_img.copy()
     iterations = 0
-
+    '''
     plt.figure()
     plt.title('Inpainting...')
     plt.imshow(u, cmap='gray')
     plt.show(block=False)
-
+    '''
     
     for t in np.arange(0, T, dt):
         u_x = np.gradient(u, axis=1)
@@ -26,7 +26,7 @@ def TV(input_img, lambda_val, mask, T, dt):
         u_yy = np.gradient(u_y, axis=0)
         u_xy = np.gradient(u_x, axis=0)
 
-        deltaE = -(u_xx * u_y**2 - 2*u_x * u_y * u_xy + u_yy * u_x**2) / (1e-5  + 0.1 + (u_x**2 + u_y**2)**(3/2)) + 2 * mask * (lambda_val * (u - input_img))
+        deltaE = -(u_xx * u_y**2 - 2*u_x * u_y * u_xy + u_yy * u_x**2) / ( 0.1 + (u_x**2 + u_y**2)**(3/2)) + 2 * mask * (lambda_val * (u - input_img))
 
         u = dt * (-deltaE ) + u 
         #print(N)
@@ -38,7 +38,7 @@ def TV(input_img, lambda_val, mask, T, dt):
             plt.title(f'Inpainting: {iterations} iterations...')
             plt.draw()
             plt.pause(0.001)
-
+        
     
 
     return u, N
